@@ -123,7 +123,7 @@ def deSynchronicity(N, x_i,v_i,t):
     pl.plot(y[2],x_a-w[0])
     pl.xlabel('Time')
     pl.ylabel("Position")
-    pl.savefig('DesyncPosition')]
+    pl.savefig('DesyncPosition')
     pl.clf()
     pl.plot(y[2],v_a-v)
     pl.plot(w[2],v_a-w[1])
