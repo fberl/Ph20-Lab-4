@@ -1,0 +1,176 @@
+import math
+import numpy as np
+import sys
+import matplotlib.pyplot as pl, matplotlib.patches as pa
+
+
+
+
+def EulerSpring(N, x_i, v_i,t): #Regular
+    v_vals = np.zeros(N)
+    x_vals = np.zeros(N)
+    x_i,v_i,t = float(x_i),float(v_i), float(t)
+    for i in range(0,N):
+        v_vals[i] = v_i 
+        v_i -= x_i*t/N
+        x_vals[i] = x_i
+        x_i += v_vals[i]*t/N
+    timespace = np.linspace(0,t,N)
+    
+    return (x_vals, v_vals, timespace)
+
+
+def EulerSpring2(N, x_i, v_i, t): #Implicit 
+    v_vals = np.zeros(N)
+    x_vals = np.zeros(N)
+    x_i,v_i,t = float(x_i),float(v_i), float(t)
+    for i in range(0,N):
+        v_vals[i] = v_i 
+        v_i = (v_vals[i]-x_i*t/N)/(1+np.power((t/N),2))
+        x_vals[i] = x_i
+        x_i += v_i*t/N
+    timespace = np.linspace(0,t,N)
+    
+    return (x_vals, v_vals, timespace)
+
+
+def EulerSpring3(N, x_i, v_i, t): #Symplectic
+    v_vals = np.zeros(N)
+    x_vals = np.zeros(N)
+    x_i,v_i,t = float(x_i),float(v_i), float(t)
+    for i in range(0,N):
+        x_vals[i] = x_i
+        x_i += v_i*t/N
+        v_vals[i] = v_i 
+        v_i -= x_i*t/N
+    timespace = np.linspace(0,t,N)
+    
+    return (x_vals, v_vals, timespace)
+
+
+def EulerPlot(N, x_i, v_i, t):
+    y = EulerSpring(N, x_i, v_i, t)
+
+    pl.plot(y[2],y[0])
+    pl.savefig('ExpEulerX')
+    pl.show()
+    pl.plot(y[2],y[1])
+    pl.savefig('ExpEulerV')
+    pl.show()
+    pl.plot(y[0],y[1])
+    pl.savefig('ExpEulerPhase')
+    pl.show()
+    pl.plot(y[2],np.sin(y[2])-y[0])
+    pl.savefig('ExpErrorX')
+    pl.show()
+    pl.plot(y[2],np.cos(y[2])-y[1])
+    pl.savefig('ExpErrorV')
+    pl.show()
+
+def EulerPlot2(N, x_i,v_i,t): #Implicit
+    y = EulerSpring2(N, x_i, v_i, t)
+
+    pl.plot(y[2],y[0])
+    pl.savefig('ImpEulerX')
+    pl.show()
+    pl.plot(y[2],y[1])
+    pl.savefig('ImpEulerV')
+    pl.show()
+    pl.plot(y[0],y[1])
+    pl.savefig('ImpEulerPhase')
+    pl.show()
+    pl.plot(y[2],np.sin(y[2])-y[0])
+    pl.savefig('ImpErrorX')
+    pl.show()
+    pl.plot(y[2],np.cos(y[2])-y[1])
+    pl.savefig('ImpErrorV')
+    pl.show()
+
+
+def EulerPlot3(N, x_i, v_i,t): #Symplectic
+    y = EulerSpring3(N, x_i, v_i, t)
+
+    pl.plot(y[2],y[0])
+    pl.savefig('SymEulerX')
+    pl.show()
+    pl.plot(y[2],y[1])
+    pl.savefig('SymEulerV')
+    pl.show()
+    pl.plot(y[0],y[1])
+    pl.savefig('SymEulerPhase')
+    pl.show()
+    pl.plot(y[2],np.sin(y[2])-y[0])
+    pl.savefig('SymErrorX')
+    pl.show()
+    pl.plot(y[2],np.cos(y[2])-y[1])
+    pl.savefig('SymErrorV')
+    pl.show()
+
+
+def deSynchronicity(N, x_i,v_i,t):
+    y = EulerSpring(N, x_i, v_i, t)
+    w = EulerSpring2(N, x_i, v_i,t)
+    x = y[0]
+    v = y[1]
+    x_a = np.zeros(len(y[2]))
+    v_a = np.zeros(len(y[2]))
+    i = 0
+    for t in y[2]:
+        x_a[i] = np.sin(t)
+        v_a[i] = np.cos(t) 
+        i+=1
+    pl.plot(y[2],x_a-x)
+    pl.plot(y[2],x_a-w[0])
+    pl.savefig('DesyncPosition')
+    pl.show()
+    pl.plot(y[2],v_a-v)
+    pl.plot(w[2],v_a-w[1])
+    pl.savefig('DesyncVelocity')    
+
+
+def truncator(x_i, v_i,N):
+    error1 = np.zeros(8)
+    error2 = np.zeros(8)
+    error3 = np.zeros(8)
+    error4 = np.zeros(8)
+    for i in range (1, 9):  
+        timespace = np.linspace(0,np.power(2,i),N)
+        error1[i-1] = np.amax((np.sin(timespace) - \
+            EulerSpring(N, x_i, v_i, np.power(2,i))[0]))
+        error2[i-1] = np.amax((np.sin(timespace) - \
+            EulerSpring2(N, x_i, v_i, np.power(2,i))[0]))
+        error3[i-1] = np.amax((np.cos(timespace) - \
+            EulerSpring(N, x_i, v_i, np.power(2,i))[1]))
+        error4[i-1] = np.amax((np.cos(timespace) - \
+            EulerSpring2(N, x_i, v_i, np.power(2,i))[1]))
+
+    x = [2,4,8,16,32,64,128,256]
+    pl.plot(x, (error1/x))
+    pl.plot(x, error2/x)
+    pl.savefig('TruncatorX')
+    pl.show()
+    pl.plot(x,error3/x)
+    pl.plot(x,error4/x)
+    pl.savefig('TruncatorV')
+    pl.show()
+
+
+def Energy(N, x_i, v_i, t):
+    y = EulerSpring(N, x_i, v_i, t)
+    E1 = np.power(y[0],2) + np.power(y[1],2)
+    w = EulerSpring2(N, x_i, v_i, t)
+    E2 = np.power(w[0],2) + np.power(w[1],2)
+    z = EulerSpring3(N,x_i,v_i,t)
+    E3 = np.power(z[0],2) + np.power(z[1],2)
+    pl.plot(y[2], np.abs(1-E1))
+    pl.plot(w[2],np.abs(1-E2))  
+    pl.plot(z[2],np.abs(1-E3))
+    pl.savefig('Energies')
+    pl.show()
+
+Energy(10000, 0, 1, np.pi*20)
+EulerPlot(10000, 0, 1, 100)
+EulerPlot2(10000, 0, 1, 100)
+EulerPlot3(10000, 0, 1, 100)
+truncator(0,1,100000)
+deSynchronicity(10000, 0, 1, 100)

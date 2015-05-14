@@ -1,0 +1,120 @@
+\documentclass{article}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{caption,subcaption}
+%these packages are useful for the align and figure environments
+
+\begin{document}
+
+\title{Ph20 Lab 3}
+\author{Frederick Berl}
+
+\maketitle
+
+\section{Spring Simulations}
+Using the explicit Euler method, $x_{i+1} = x_i+hv_i, v_{i+1}=v_i-hx_{i}$, I approximated the position and velocity values using 10000 intervals over 20 periods. \\
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[h]{4in}
+		\includegraphics[width=4in] {ExpEulerX.png}
+			\caption{Explicit method Position}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[h]{4in} 
+		\includegraphics[width=4in]{{ExpEulerV}.png}
+			\caption{Explicit Method Velocity}
+	\end{subfigure}
+\end{figure}
+\bigskip
+The analytic solution for my initial condition $x = 0$ and $\dot{x} = 1$ with the fact that $m\ddot{x} = -kx$ is a sinusoidal function because position and acceleration are zero when velocity is at a maximum, and sinusoids are a class of function that fit these parameters. Therefore our position can be described as $x_{max}sin(t)$ and our velocity as $v_{max}cos(t)$\\
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[h]{4in}
+		\includegraphics[width=4in] {ImpEulerX.png}
+			\caption{Implicit method Position}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[h]{4in} 
+		\includegraphics[width=4in]{{ImpEulerV}.png}
+			\caption{Implicit Method Velocity}
+	\end{subfigure}
+\end{figure}
+
+Also, solving the system $x_{i+1} = x_i+hv_{i+1}$, $v_{i+1}=v_i-hx_{i+1}$ for an implicit solution we get the solutions $x_{i+1} = \frac{x_{i}+hv_{i}}{1+h^{2}}$ and $v_{i+1} = \frac{v_{i}-hx_{i}}{1+h^{2}}$.
+
+
+Comparing it to our approximation, we can see that the approximation has an error that that increases as time goes on. We can also see that the error is due an accumulation of linear truncation errors.
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[h]{3in}
+		\includegraphics[width=3in] {DesyncPosition.png}
+			\caption{Global Error for X: Blue line is Explicit, Green is Implicit}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[h]{3in}
+		\includegraphics[width=3in]{DesyncVelocity.png}
+			\caption{Global error for V: Blue line is Explicit, Green is Implicit}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[h]{3in}
+		\includegraphics[width=3in] {TruncatorX.png}
+			\caption{Truncation Error for X: Blue line is Explicit, Green is Implicit}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[h]{3in}
+		\includegraphics[width=3in]{{TruncatorV}.png}
+			\caption{Truncation Error for V: Blue line is Explicit, Green is Implicit}
+	\end{subfigure}
+\end{figure}
+\bigskip
+Now we can introduce the symplectic Euler method, which conserves volume in phase space (The phase space curve is closed because Energy is conserved much better than the other two methods). Graphing this method, we get the following curves for position and velocity:
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[h]{5in}
+		\includegraphics[width=5in] {SymEulerX.png}
+			\caption{Symplectic method Position}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[h]{5in} 
+		\includegraphics[width=5in]{{SymEulerV}.png}
+			\caption{Symplectic Method Velocity}
+	\end{subfigure}
+\end{figure}
+\bigskip
+To show that the phase space curves are closed, I graphed the following:
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[h]{3in}
+		\includegraphics[width=3in] {ExpEulerPhase.png}
+			\caption{Explicit phase space}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[h]{3in} 
+		\includegraphics[width=3in]{{SymEulerPhase}.png}
+			\caption{Symplectic phase space}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[h]{3in} 
+		\includegraphics[width=3in]{{ImpEulerPhase}.png}
+			\caption{Implicit phase space}
+	\end{subfigure}
+\end{figure}
+\bigskip
+Lastly, we can compare the changes in normalized total energy, $E = x^{2} + v^{2}$ for the three methods:
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[h]{5in}
+		\includegraphics[width=5in] {Energies.png}
+			\caption{Energy change over time. Blue is Explicit, Green Implicit, and Red Symplectic}
+	\end{subfigure}
+\end{figure}
+\bigskip
+As we can see, Energy is conserved by the symplectic method but not by the other two, which is in line with our phase space graphs above. The symplectic energy term is actually oscillating around E=1, which for our values makes sense. It deviates slightly, but corrects itself repeatedly
+\end{document}
